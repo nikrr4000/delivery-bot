@@ -42,10 +42,15 @@ export async function registration(conversation, ctx) {
 
     let paramsText = "Укажите дополнительную информацию о товаре. ";
     paramsText += "К примеру размер, цвет или комплектация товара \n\n";
-    paramsText += "Если у товара нет особенностей, вы можете пропустить этот шаг";
+    paramsText += "Если у товара нет особенностей, вы можете пропустить этот шаг\n\n";
+
+    paramsText += '<i>Обращаем ваше внимание и настоятельно просим тщательно подбирать '
+    paramsText += 'размер того или иного товара, в случае, если размер '
+    paramsText += 'вам не подойдет, <b><u>мы не сможем сделать возврат</u></b>.</i>'
 
     ctx.reply(paramsText, {
         reply_markup: regParamsMenu,
+        parse_mode: 'HTML'
     });
 
     await getOrderParams(conversation, ctx);
@@ -146,13 +151,16 @@ export async function registration(conversation, ctx) {
     totalText += `- Доп. параметры: ${currentOrder.params}\n`;
     totalText += `- Ссылка: ${htmlOrderLink}\n`;
     totalText += `- Стоимость: ${currentOrder.priceCNY} ￥ \n\n`;
-    
+
     totalText += `${getEmoji("fio")}  ФИО получателя: ${currentUser.fio}\n`;
     totalText += `${getEmoji("address")}  Адрес доставки: ${currentUser.address}\n`;
     totalText += `${getEmoji("phone")}  Номер получателя: ${currentUser.number}\n`;
     totalText += `${getEmoji("time")} Срок доставки: от `;
-    totalText += `${deliveryPeriod.min} до ${deliveryPeriod.max} дней + время доставки Poizon\n`;
+    totalText += `${deliveryPeriod.min} до ${deliveryPeriod.max} дней + время доставки Poizon\n\n`;
     // изменить можно в корзине
+    totalText += '<i>Окончательная стоимость товара уточняется менеджером, '
+    totalText += 'так как она может измениться в зависимости от '
+    totalText += 'стоимости доставки с площадки Poizon до склада в Китае!</i>'
 
     if (currentSession.temp?.keepNumber) {
         conversation.ctx.editMessageText(totalText, {
@@ -195,7 +203,7 @@ export async function registration(conversation, ctx) {
 
             let dbId = await addToCart(from.id, currentOrder);
             await (currentOrder.fromId = from.id);
-            
+
             currentOrder.dbId = dbId.id;
             currentOrder.date = Date.now();
             await (currentSession.cart.push(currentOrder));
