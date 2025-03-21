@@ -1,12 +1,15 @@
 import { InlineKeyboard } from "grammy";
 import linksConfig from "#bot/config/links.config.js";
 
-export function getMainMenu(isNewbie = true) {
+export function getMainMenu(isNewbie = true)
+{
     let mainMenu = new InlineKeyboard();
 
-    if (isNewbie) {
+    if (isNewbie)
+    {
         mainMenu.text("📦  Заказать вещи", "order__make");
-    } else {
+    } else
+    {
         mainMenu.text("📦  Заказать вещи", "order__create");
     }
 
@@ -39,7 +42,9 @@ export const helpMenu = new InlineKeyboard()
 export const adminMainMenu = new InlineKeyboard()
     .text("Обновить по таблице", "orders_in_process")
     .row()
-    .text("Обновление Dobropost", "dobropost_status_update");
+    .text("Обновление Dobropost", "dobropost_status_update")
+    .row()
+    .text("Прикрепить фото", "attach_photos");
 
 export const notifApprove = new InlineKeyboard()
     .text('cancel', "notif_cancel")

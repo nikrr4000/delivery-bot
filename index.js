@@ -21,6 +21,13 @@ bot.use(traceRoutes);
 bot.use(order);
 bot.use(cart);
 bot.use(orders);
+// функция-трансформер
+bot.api.config.use((prev, method, payload) =>
+{
+    let _payload = payload
+    if (_payload != undefined) _payload.parse_mode = "HTML"
+    return prev(method, _payload)
+})
 
 bot.api.setMyCommands([
     {
@@ -47,7 +54,8 @@ bot.command("admin", async (ctx) => await sendAdminMessage(ctx));
 bot.command("help", async (ctx) => await sendHelpMessage(ctx, true));
 bot.callbackQuery("help", async (ctx) => await sendHelpMessage(ctx));
 
-bot.callbackQuery("back", async (ctx) => {
+bot.callbackQuery("back", async (ctx) =>
+{
     await ctx.session.routeHistory.pop(); // фальшивка ёбанная
     const routeParams = await ctx.session.routeHistory.pop();
     ctx.session.conversation = {};
@@ -59,17 +67,21 @@ bot.callbackQuery("back", async (ctx) => {
     ctx.answerCallbackQuery();
 });
 
-bot.catch(async (err) => {
+bot.catch(async (err) =>
+{
     const ctx = err.ctx;
     console.error(`Error while handling update ${ctx.update.update_id}`);
 
     const e = err.error;
-    if (e instanceof GrammyError) {
+    if (e instanceof GrammyError)
+    {
         console.error("Error in request:", e.description);
         // await sendStartMessage(ctx, true);
-    } else if (e instanceof HttpError) {
+    } else if (e instanceof HttpError)
+    {
         console.log("Could not contact Telegram:", e);
-    } else {
+    } else
+    {
         console.error("Unknown error:", e);
         await sendStartMessage(ctx, true);
     }
