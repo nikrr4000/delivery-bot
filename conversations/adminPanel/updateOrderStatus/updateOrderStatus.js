@@ -41,6 +41,7 @@ const handleDbUpdate = async (
         handleResult(ctx, messageTexts.jobDone)
     } catch (error)
     {
+        console.log(error)
         handleResult(ctx, messageTexts.dbUpdateError)
     }
 }
@@ -77,19 +78,22 @@ export async function dobropostUpdateConversation(conversation, ctx)
     await ctx.reply(messageTexts.sendDbrpstMsg)
     const { message: { text: dobropostUpdate } } = await conversation.wait()
 
-    const parsedInfoObj = await dobropostStatusParser(dobropostUpdate)
-    if (parsedInfoObj.status === "error")
+    const { status: infoStatus, data } = await dobropostStatusParser(dobropostUpdate)
+    if (infoStatus === "error")
     {
-        handleResult(ctx, `${parsedInfoObj.data}\nПопробуйте снова.`)
+        handleResult(ctx, `${data}\nПопробуйте снова.`)
         return
     }
-    const { infoObj } = parsedInfoObj.data
+
+    console.log(data);
+
+
     const {
         userId,
         orderUniqueId,
         orderId,
         status,
-    } = infoObj
+    } = data
 
     const notifApproved = await statusNotificator(ctx, conversation, userId, orderUniqueId, status)
 
@@ -99,5 +103,5 @@ export async function dobropostUpdateConversation(conversation, ctx)
         return
     }
 
-    handleDbUpdate(ctx, userId, orderId, status, sdekNumber)
+    handleDbUpdate(ctx, userId, orderId, status)
 }

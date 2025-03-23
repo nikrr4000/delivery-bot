@@ -1,5 +1,6 @@
 import { dobropostRegExps } from "#bot/config/infoRegExps.config.js";
 import sendAdminMessage from "#bot/handlers/sendAdminMessage.js";
+import { getEmoji } from "#bot/helpers/getEmoji.js";
 
 export const handleResult = (ctx, message) => ctx.reply(message).then(() => sendAdminMessage(ctx))
 
@@ -60,5 +61,7 @@ export const messageTexts = {
     canelSending: "Отменить отправку",
     sendingIsCanceled: "Отправка отменена.",
     jobDone: "JOB IS DONE",
-    useButtons: "Используйте кнопки"
+    useButtons: "Используйте кнопки",
+    errorOccured: "Произошла ошибка. Обатитесь к администратору."
 }
+

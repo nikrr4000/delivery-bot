@@ -10,7 +10,7 @@ export default async (conversation, ctx) =>
             const fileIds = conversation.session.temp.fileIds
             const endConditions = {
                 endMark: ctx.message.text === "end",
-                maxLength: fileIds.length <= maxFileIdsLength
+                maxLength: fileIds.length >= maxFileIdsLength
             }
             const endConditionsValues = Object.values(endConditions)
             const shouldEnd = endConditionsValues.includes(true)

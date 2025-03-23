@@ -84,7 +84,7 @@ export async function getOrder(userId, orderId)
 
 export async function updateOrderStatus(userId, orderId, status, sdekTrackNum = null)
 {
-    sdekNumber ?
+    sdekTrackNum ?
         await db.collection("users").doc(`${userId}`).collection("orders").doc(`${orderId}`).update({
             status,
             sdekTrackNum

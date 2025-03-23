@@ -219,6 +219,8 @@ export async function infoForSheetsHandler({
     let rowCounter = 3
     let checkCell = await sheet.getCellByA1(`K${rowCounter}`)
 
+    console.log(orderId)
+
     while (checkCell.value !== orderId)
     {
         rowCounter += 1

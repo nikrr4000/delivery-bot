@@ -22,7 +22,7 @@ const extractionRegExps = {
      ]
 }
 
-const enhanceDobropostInfo = (message, dbrpstInfoObj) =>
+const enhanceInfoObj = (message, dbrpstInfoObj) =>
 {
      const { key, status } = dobropostMatcher(message)
      dbrpstInfoObj.status = status
@@ -51,10 +51,11 @@ export default async (message) =>
           return res
      }
 
-     const dobropostCommonInfoObj = {}
+     res.data = { dobropostOrderId, userId, orderId }
+     const { data: infoObj } = res
 
-     enhanceDobropostInfo(message, dobropostCommonInfoObj)
-     if (!dobropostCommonInfoObj.status)
+     enhanceInfoObj(message, infoObj)
+     if (!infoObj.status)
      {
           res.data = "Ошибка при попытке извлечь данные из тела сообщения."
           res.status = "error"
@@ -63,17 +64,17 @@ export default async (message) =>
 
      try
      {
-          const orderUniqueId = await infoForSheetsHandler(dobropostCommonInfoObj);
-          dobropostCommonInfoObj.orderUniqueId = orderUniqueId
+          const orderUniqueId = await infoForSheetsHandler(infoObj);
+          infoObj.orderUniqueId = orderUniqueId
      } catch (error)
      {
+          console.log(error)
           res.data = "Ошибка при попытке записать и получить данные в таблице."
           res.status = "error"
           return res
      }
 
-     res.data = dobropostCommonInfoObj
-     return dobropostCommonInfoObj
+     return res
 
      //TODO: обработчик изображений
      //#1 Готов фото-отчет товара название товара (CN0000091191): images - came_to_china_stock
