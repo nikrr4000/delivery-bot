@@ -6,15 +6,21 @@ const { convertationFee, wmFee } = pricingConfig;
 //TODO Найти аналог freecurrencyapi - в месяц 5000 запросов или сделать так, чтобы запросы были редкими(напр. раз в час совершается запрос)
 export async function convertThroughUSD(amount, fromCurr, toCurr) {
     //Определяем стоимость fromCurr к USD -> USD к toCurr с учётом amount
-    let responseOneRate = rates.dataOne && rates.dataOne[fromCurr] ?
-        (amount / Number(rates.dataOne[fromCurr])) * Number(rates.dataOne[toCurr]).toFixed(3) : 0;
-    let responseTwoRate = rates.dataTwo && rates.dataTwo[fromCurr] ?
-        (amount / Number(rates.dataTwo[fromCurr])) * Number(rates.dataTwo[toCurr]).toFixed(3) : 0;
-    let responseThreeRate = rates.dataThree && rates.dataThree[fromCurr] ?
-        (amount / Number(rates.dataThree[fromCurr])) * Number(rates.dataThree[toCurr]).toFixed(3) : 0;
+    let responseOneRate =
+        rates.dataOne && rates.dataOne[fromCurr]
+            ? (amount / Number(rates.dataOne[fromCurr])) * Number(rates.dataOne[toCurr]).toFixed(3)
+            : 0;
+    let responseTwoRate =
+        rates.dataTwo && rates.dataTwo[fromCurr]
+            ? (amount / Number(rates.dataTwo[fromCurr])) * Number(rates.dataTwo[toCurr]).toFixed(3)
+            : 0;
+    let responseThreeRate =
+        rates.dataThree && rates.dataThree[fromCurr]
+            ? (amount / Number(rates.dataThree[fromCurr])) * Number(rates.dataThree[toCurr]).toFixed(3)
+            : 0;
 
     // Создаем массив из курсов валют и фильтруем все нулевые значения
-    let ratesArray = [responseOneRate, responseTwoRate, responseThreeRate].filter(rate => rate !== 0);
+    let ratesArray = [responseOneRate, responseTwoRate, responseThreeRate].filter((rate) => rate !== 0);
 
     // Находим сумму оставшихся значений и делим на их количество
     let averageRate = ratesArray.reduce((a, b) => a + b, 0) / ratesArray.length;

@@ -4,14 +4,13 @@ import { hydrate } from "@grammyjs/hydrate";
 import { registration } from "#bot/conversations/registration.js";
 import { calculate } from "#bot/conversations/calculate.js";
 import { backKeyboard, backMainMenu } from "#bot/keyboards/general.js";
-import
-    {
-        confirmOrderMenu,
-        getSubTypeKeyboard,
-        orderMenuBeforeCreate,
-        otherKeyboard,
-        selectCategoryKeyboard,
-    } from "#bot/keyboards/order.js";
+import {
+    confirmOrderMenu,
+    getSubTypeKeyboard,
+    orderMenuBeforeCreate,
+    otherKeyboard,
+    selectCategoryKeyboard,
+} from "#bot/keyboards/order.js";
 import { addUserOrder, cleanCart, updateUserInfo } from "#bot/api/firebase.api.js";
 import limitsConfig from "#bot/config/limits.config.js";
 import linksConfig from "#bot/config/links.config.js";
@@ -29,8 +28,7 @@ order.use(conversations());
 order.use(createConversation(registration));
 order.use(createConversation(calculate));
 
-order.callbackQuery("order__make", async (ctx) =>
-{
+order.callbackQuery("order__make", async (ctx) => {
     let orderText = "Перед оформлением заказа настоятельно рекомендуем ознакомиться с ";
     orderText += `<a href="${linksConfig.guide}">гайдом</a> пользования площадки POIZON, а также с правилом нашей доставки! 🚸`;
 
@@ -45,38 +43,31 @@ order.callbackQuery("order__make", async (ctx) =>
     ctx.answerCallbackQuery();
 });
 
-order.callbackQuery(/order__create/, async (ctx) =>
-{
+order.callbackQuery(/order__create/, async (ctx) => {
     let mode = ctx.callbackQuery.data.split("__create_")[1] ?? "keep";
     let cart = ctx.session.cart;
 
-    if (cart.length === limitsConfig.cartMaxLength)
-    {
+    if (cart.length === limitsConfig.cartMaxLength) {
         await ctx.editMessageText(
             "Корзина переполнена, вам следует оформить заказ или удалить что-то лишнее из товаров ",
             {
                 reply_markup: backToCart,
-            }
+            },
         );
         ctx.answerCallbackQuery();
-    } else
-    {
-        if (mode === "skip")
-        {
+    } else {
+        if (mode === "skip") {
             ctx.session.user.isNewbie = false;
-            if (ctx.session.user?.fio !== "")
-            {
+            if (ctx.session.user?.fio !== "") {
                 updateUserInfo(ctx.from.id, {
                     isNewbie: false,
                 });
             }
         }
-        if (mode === "calc")
-        {
+        if (mode === "calc") {
             ctx.session.temp.calcMode = true;
         }
-        if (mode === "another")
-        {
+        if (mode === "another") {
             ctx.session.order = structuredClone(sessionConfig.order);
         }
 
@@ -90,8 +81,7 @@ order.callbackQuery(/order__create/, async (ctx) =>
     }
 });
 
-order.callbackQuery(/order__select_/, async (ctx) =>
-{
+order.callbackQuery(/order__select_/, async (ctx) => {
     let currentType = ctx.callbackQuery.data.split("__select_")[1];
     ctx.session.order.type = currentType;
 
@@ -101,8 +91,7 @@ order.callbackQuery(/order__select_/, async (ctx) =>
     ctx.answerCallbackQuery();
 });
 
-order.callbackQuery("order__pick_disclaimer", async (ctx) =>
-{
+order.callbackQuery("order__pick_disclaimer", async (ctx) => {
     let otherDisclaimer = "⚠️Важно⚠️\n\nПри выборе категории 'Другое' ";
     otherDisclaimer += "стоимость доставки не входит в итоговую сумму заказа и \n";
     otherDisclaimer += "рассчитывается отдельно менеджером";
@@ -112,31 +101,25 @@ order.callbackQuery("order__pick_disclaimer", async (ctx) =>
     });
 });
 
-order.callbackQuery(/order__pick_/, async (ctx) =>
-{
+order.callbackQuery(/order__pick_/, async (ctx) => {
     ctx.session.order.subType = ctx.callbackQuery.data.split("__pick_")[1];
     ctx.answerCallbackQuery();
     let chatId = ctx.update.callback_query.message.chat.id;
     let messageId = ctx.update.callback_query.message.message_id;
-    try
-    {
+    try {
         ctx.api.deleteMessage(chatId, messageId);
-    } catch (error)
-    {
+    } catch (error) {
         console.log(error);
     }
 
-    if (ctx.session.temp?.calcMode)
-    {
+    if (ctx.session.temp?.calcMode) {
         await ctx.conversation.enter("calculate");
-    } else
-    {
+    } else {
         await ctx.conversation.enter("registration");
     }
 });
 
-order.callbackQuery("order__price", async (ctx) =>
-{
+order.callbackQuery("order__price", async (ctx) => {
     await ctx.editMessageText("С чего начинается цена...", {
         reply_markup: backKeyboard,
     });
@@ -144,8 +127,7 @@ order.callbackQuery("order__price", async (ctx) =>
 });
 
 let totalSum;
-order.callbackQuery("order__place", async (ctx) =>
-{
+order.callbackQuery("order__place", async (ctx) => {
     let cart = ctx.session.cart;
     let user = ctx.session.user;
 
@@ -155,8 +137,7 @@ order.callbackQuery("order__place", async (ctx) =>
     let cartItemsText = "";
     let totalDutySum = 0;
 
-    cart.forEach((cartItem, index) =>
-    {
+    cart.forEach((cartItem, index) => {
         cartItemsText += `#${++index}: ${cartItem.name}\n`;
         cartItemsText += `- Ссылка: ${getHtmlOrderLink(cartItem)}\n`;
         cartItemsText += `- Доп. параметры: ${cartItem.params}\n`;
@@ -172,11 +153,9 @@ order.callbackQuery("order__place", async (ctx) =>
     totalSum = await calculateTotalSum(cart);
     makeOrderText += `Итого к оплате*: ${totalSum} ₽\n`;
 
-    if (totalDutySum === 0)
-    {
+    if (totalDutySum === 0) {
         makeOrderText += `*<i> - с учётом доставки</i>\n\n`;
-    } else
-    {
+    } else {
         makeOrderText += `*<i> - с учётом доставки и пошлины</i>\n\n`;
     }
 
@@ -193,8 +172,7 @@ order.callbackQuery("order__place", async (ctx) =>
     ctx.answerCallbackQuery();
 });
 
-order.callbackQuery("order__confirm", async (ctx) =>
-{
+order.callbackQuery("order__confirm", async (ctx) => {
     let cart = ctx.session.cart;
     let user = ctx.session.user;
     let { from } = ctx;
@@ -229,17 +207,14 @@ order.callbackQuery("order__confirm", async (ctx) =>
         declaredTotalPrice: ctx.session.totalSum,
     };
 
-    try
-    {
+    try {
         await sheetUpdater(sheetDataObj);
-    } catch (e)
-    {
+    } catch (e) {
         console.log(e);
     }
 
     let res = await cleanCart(ctx.from.id);
-    if (res)
-    {
+    if (res) {
         ctx.session.cart = [];
     }
     ctx.session.temp.order = order;
@@ -247,11 +222,9 @@ order.callbackQuery("order__confirm", async (ctx) =>
     let textForManager = ctx.session.temp.makeOrderText;
     textForManager += `\n`;
 
-    if (user?.username)
-    {
+    if (user?.username) {
         textForManager += `Профиль: <b>${from.id}</b> | @${from.username}`;
-    } else
-    {
+    } else {
         textForManager += `Профиль: <b>${from.id}</b>`;
     }
 
@@ -260,8 +233,7 @@ order.callbackQuery("order__confirm", async (ctx) =>
         parse_mode: "HTML",
     });
 
-    if (process.env.BOT_IS_DEV === 'false')
-    {
+    if (process.env.BOT_IS_DEV === "false") {
         ctx.api.sendMessage(process.env.BOT_ORDERS_CHAT_ID, textForManager, {
             parse_mode: "HTML",
         });

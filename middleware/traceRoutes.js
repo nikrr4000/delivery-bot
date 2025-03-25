@@ -1,20 +1,15 @@
 import sendStartMessage from "#bot/handlers/sendStartMessage.js";
 
-export default async function (ctx, next)
-{
+export default async function (ctx, next) {
     let currentMsgId = ctx?.update?.message?.message_id ?? ctx?.callbackQuery?.message?.message_id;
     let lastMsgId = ctx.session.lastMsgId ?? 0;
 
-    if (currentMsgId < lastMsgId || lastMsgId === 0)
-    {
+    if (currentMsgId < lastMsgId || lastMsgId === 0) {
         return await sendStartMessage(ctx, true);
-    }
-    else
-    {
+    } else {
         ctx.session.lastMsgId = currentMsgId;
 
-        if (ctx?.callbackQuery)
-        {
+        if (ctx?.callbackQuery) {
             let cbQMessage = await ctx.callbackQuery.message;
 
             ctx.session.routeHistory.push({

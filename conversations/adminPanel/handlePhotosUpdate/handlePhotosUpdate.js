@@ -5,58 +5,53 @@ import { getOrderIds, handleResult, messageTexts } from "../utils.js";
 import handlePhotos from "./handlePhotos.js";
 import { InlineKeyboard, InputMediaBuilder } from "grammy";
 
-const handleSendMediaGroup = async (ctx, userId, mediaGroup) =>
-{
-    let resultText
-    try
-    {
-        const userMessageRes = await ctx.api.sendMediaGroup(userId, mediaGroup)
+const handleSendMediaGroup = async (ctx, userId, mediaGroup) => {
+    let resultText;
+    try {
+        const userMessageRes = await ctx.api.sendMediaGroup(userId, mediaGroup);
         if (!userMessageRes) throw new Error();
-        resultText = messageTexts.jobDone
-    } catch (err)
-    {
-        resultText = 'Во время отправки произошла ошибка, попробуйте позже'
+        resultText = messageTexts.jobDone;
+    } catch (err) {
+        resultText = "Во время отправки произошла ошибка, попробуйте позже";
     }
-    handleResult(ctx, resultText)
-}
+    handleResult(ctx, resultText);
+};
 
-export async function handlePhotosUpdate(conversation, ctx)
-{
-    try
-    {
-        await ctx.reply(messageTexts.sendOrderUniqueId)
-        const { message: { text: orderIdsText } } = await conversation.wait()
-        const [, userId, orderDbId] = getOrderIds(orderIdsText)
+export async function handlePhotosUpdate(conversation, ctx) {
+    try {
+        await ctx.reply(messageTexts.sendOrderUniqueId);
+        const {
+            message: { text: orderIdsText },
+        } = await conversation.wait();
+        const [, userId, orderDbId] = getOrderIds(orderIdsText);
 
-        const { orderId } = await getOrder(userId, orderDbId)
+        const { orderId } = await getOrder(userId, orderDbId);
 
-        await ctx.reply(messageTexts.sendPhotos)
-        await handlePhotos(conversation, ctx)
-        const fileIds = conversation.session.temp.fileIds
+        await ctx.reply(messageTexts.sendPhotos);
+        await handlePhotos(conversation, ctx);
+        const fileIds = conversation.session.temp.fileIds;
 
-        const mediaGroup = fileIds.map(id => InputMediaBuilder.photo(id))
-        mediaGroup[0].caption = `Фотоотчет товара по заказу #${orderId}.`
+        const mediaGroup = fileIds.map((id) => InputMediaBuilder.photo(id));
+        mediaGroup[0].caption = `Фотоотчет товара по заказу #${orderId}.`;
 
-        await ctx.reply(messageTexts.shoudSendQuestion)
-        await ctx.replyWithMediaGroup(mediaGroup)
-        await ctx.reply('Подтвердить отправку?', {
+        await ctx.reply(messageTexts.shoudSendQuestion);
+        await ctx.replyWithMediaGroup(mediaGroup);
+        await ctx.reply("Подтвердить отправку?", {
             reply_markup: new InlineKeyboard()
-                .text(messageTexts.confirmSending, 'confirm')
+                .text(messageTexts.confirmSending, "confirm")
                 .row()
-                .text(messageTexts.confirmSending, 'cancel')
-        })
+                .text(messageTexts.confirmSending, "cancel"),
+        });
 
         const { match } = await conversation.waitForCallbackQuery(/confirm|cancel/, {
-            otherwise: (ctx) =>
-                unlessActions(ctx, () => { })
-        })
+            otherwise: (ctx) => unlessActions(ctx, () => {}),
+        });
 
-        const isConfirmed = match[0] === "confirm"
-        isConfirmed ?
-            handleSendMediaGroup(ctx, userId, mediaGroup) :
-            handleResult(ctx, messageTexts.sendingIsCanceled)
-    } catch (e)
-    {
-        handleResult(ctx, messageTexts.errorOccured)
+        const isConfirmed = match[0] === "confirm";
+        isConfirmed
+            ? handleSendMediaGroup(ctx, userId, mediaGroup)
+            : handleResult(ctx, messageTexts.sendingIsCanceled);
+    } catch (e) {
+        handleResult(ctx, messageTexts.errorOccured);
     }
 }

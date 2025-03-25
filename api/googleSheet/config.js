@@ -1,3 +1,3 @@
 export default {
-    headerRowsNumber: 2
-}
+    headerRowsNumber: 2,
+};

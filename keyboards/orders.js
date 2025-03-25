@@ -7,67 +7,53 @@ export const checkMenu = new InlineKeyboard()
     .row()
     .text("‹ В главное меню", "main_menu");
 
-export function generateOrdersMenu(orders, currentPage, maxPerMessage = limitsConfig.maxOrdersPerMessage)
-{
+export function generateOrdersMenu(orders, currentPage, maxPerMessage = limitsConfig.maxOrdersPerMessage) {
     let ordersMenu = new InlineKeyboard();
 
-    if (currentPage === 1)
-    {
+    if (currentPage === 1) {
         let range;
 
-        if (orders.length == 1)
-        {
+        if (orders.length == 1) {
             range = orders.length;
-        } else
-        {
+        } else {
             range = orders.length - 1 < maxPerMessage ? orders.length : maxPerMessage;
         }
 
-        for (let i = 0; i < range; i++)
-        {
+        for (let i = 0; i < range; i++) {
             ordersMenu
                 .text(
                     `#${orders[i].orderId} • Товаров: ${orders[i].items.length} • ${getEmoji(orders[i].status)}`,
-                    `orders__check_${orders[i].dbId}`
+                    `orders__check_${orders[i].dbId}`,
                 )
                 .row();
         }
 
-        if (orders.length < maxPerMessage)
-        {
+        if (orders.length < maxPerMessage) {
             ordersMenu.text("‹ В главное меню", "main_menu");
-        }
-        else
-        {
+        } else {
             ordersMenu.text("‹ Назад", "main_menu");
             ordersMenu.text("Дальше ›", "orders__nav_next");
         }
-    } else
-    {
+    } else {
         let isOrdersEnd = false;
         const range = currentPage * maxPerMessage;
-        for (let i = range - maxPerMessage; i <= range; i++)
-        {
-            if (orders[i]?.dbId && !isOrdersEnd)
-            {
+        for (let i = range - maxPerMessage; i <= range; i++) {
+            if (orders[i]?.dbId && !isOrdersEnd) {
                 let num = i;
                 ordersMenu
                     .text(
                         `#${++num} Товаров: ${orders[i].items.length} • ${getEmoji(orders[i].status)}`,
-                        `orders__check_${orders[i].dbId}`
+                        `orders__check_${orders[i].dbId}`,
                     )
                     .row();
-            } else
-            {
+            } else {
                 isOrdersEnd = true;
             }
         }
 
-        if (!isOrdersEnd)
-        {
+        if (!isOrdersEnd) {
             ordersMenu.text("‹ Назад", "orders__nav_back").text("Дальше ›", "orders__nav_next");
-        } else
-        {
+        } else {
             ordersMenu.text("‹ Назад", "orders__nav_back");
         }
     }
