@@ -2,10 +2,13 @@ import { infoForSheetsHandler } from "#bot/api/googleSheet/google-sheet.api.js";
 import { dobropostRegExps } from "#bot/config/infoRegExps.config.js";
 import { dobropostStatusKeys as statusKeys, getOrderIds, extractMatch } from "../utils.js";
 
-const dobropostMatcher = (message) => {
-    for (const [key, status] of Object.entries(statusKeys)) {
+const dobropostMatcher = (message) =>
+{
+    for (const [key, status] of Object.entries(statusKeys))
+    {
         const regExp = dobropostRegExps[key];
-        if (regExp.test(message)) {
+        if (regExp.test(message))
+        {
             return { key, status };
         }
     }
@@ -19,26 +22,30 @@ const extractionRegExps = {
     ],
 };
 
-const enhanceInfoObj = (message, dbrpstInfoObj) => {
+const enhanceInfoObj = (message, dbrpstInfoObj) =>
+{
     const { key, status } = dobropostMatcher(message);
     dbrpstInfoObj.status = status;
     if (!status) return;
 
     const extractors = extractionRegExps[key];
     if (!extractors) return;
-    for (const [infoKey, extractor] of extractors) {
+    for (const [infoKey, extractor] of extractors)
+    {
         dbrpstInfoObj[infoKey] = extractMatch(message, extractor);
     }
 };
 
-export default async (message) => {
+export default async (message) =>
+{
     const res = {
         data: "",
         status: "success",
     };
 
     const [dobropostOrderId, userId, orderId] = getOrderIds(message);
-    if (!(dobropostOrderId && userId && orderId)) {
+    if (!(dobropostOrderId && userId && orderId))
+    {
         res.data = "Ошибка при попытке извлечь данные идентификаторов заказа.";
         res.status = "error";
         return res;
@@ -48,16 +55,19 @@ export default async (message) => {
     const { data: infoObj } = res;
 
     enhanceInfoObj(message, infoObj);
-    if (!infoObj.status) {
+    if (!infoObj.status)
+    {
         res.data = "Ошибка при попытке извлечь данные из тела сообщения.";
         res.status = "error";
         return res;
     }
 
-    try {
+    try
+    {
         const orderUniqueId = await infoForSheetsHandler(infoObj);
         infoObj.orderUniqueId = orderUniqueId;
-    } catch (error) {
+    } catch (error)
+    {
         console.log(error);
         res.data = "Ошибка при попытке записать и получить данные в таблице.";
         res.status = "error";
@@ -65,12 +75,4 @@ export default async (message) => {
     }
 
     return res;
-
-    //TODO: обработчик изображений
-    //#1 Готов фото-отчет товара название товара (CN0000091191): images - came_to_china_stock
-    //Информация о поступлении каждого товара появляется по отдельности, у каждого товара уникальное имя.
-    //Имя может получить только целый заказ или товар, оформленный сразу как посылка
-    //Нужно больше опытной инфы, первый пункт пропускаем
-    //TODO: заменить везде упоминания DOBROPOST
-    // TODO: Уточнить, какие ошибки случились
 };

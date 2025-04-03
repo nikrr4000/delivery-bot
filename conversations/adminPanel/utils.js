@@ -4,12 +4,14 @@ import { getEmoji } from "#bot/helpers/getEmoji.js";
 
 export const handleResult = (ctx, message) => ctx.reply(message).then(() => sendAdminMessage(ctx));
 
-export const extractMatch = (text, regex) => {
+export const extractMatch = (text, regex) =>
+{
     const match = text.match(regex);
     return match ? match[1] : null;
 };
 
-export const getOrderIds = (message) => {
+export const getOrderIds = (message) =>
+{
     const dobropostOrderId = extractMatch(message, dobropostRegExps.orderId);
     const [userId, orderId] = dobropostOrderId.split("|");
     return [dobropostOrderId, +userId, orderId];
@@ -54,10 +56,12 @@ export const messageTexts = {
     sendDbrpstMsg:
         "Пришлите сообщение от Dobropost.\nСообщение должно содержать ordername следующего вида: (ordername: '842124351|ZEF1StWndZAcyE0qFQ1k')",
     shoudSendQuestion: "Пользователь получить следующее сообщение",
-    confirmSending: "Подтверить отправку",
-    canelSending: "Отменить отправку",
+    confirmSendingQ: "Подтверить отправку?",
+    photoReportNumIsReady: (number) => `Фотоотчет товара по заказу #${number}.`,
+    onlyJPEGAllowed: "Oтправлять можно только изображения формата JPEG",
     sendingIsCanceled: "Отправка отменена.",
     jobDone: "JOB IS DONE",
     useButtons: "Используйте кнопки",
+    wrongOrderNumberError: "Проверьте правильность введеенного номера заказа.",
     errorOccured: "Произошла ошибка. Обатитесь к администратору.",
 };

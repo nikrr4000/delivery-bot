@@ -21,4 +21,5 @@ export default {
     },
     cartMaxLength: 15,
     maxOrdersPerMessage: 5,
+    maxFileIdsLength: 6,
 };
